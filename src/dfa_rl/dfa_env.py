@@ -28,7 +28,6 @@ class DFAEnv:
 
         self.state: Optional[str] = None
         self.steps = 0
-        self._last_action_idx: Optional[int] = None
         self.done = False
 
     def reset(self, seed: Optional[int] = None) -> int:
@@ -36,7 +35,6 @@ class DFAEnv:
             self.rng.seed(seed)
         self.state = self.rng.choice(self.non_accepting)
         self.steps = 0
-        self._last_action_idx = None
         self.done = False
         return 0  # observation token ("no previous action yet")
 
@@ -47,7 +45,6 @@ class DFAEnv:
             raise ValueError(f"Action must be in [0,{self.action_space_n-1}]")
 
         a_sym = self.idx_to_action[action]
-        self._last_action_idx = action
         self.steps += 1
 
         # transition

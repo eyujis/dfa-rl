@@ -4,23 +4,23 @@ from typing import Tuple, Dict, Any, Optional
 class DFAEnv:
     """
     Environment:
-      - action space: integers 0..K-1 for symbols in fsa.alphabet
+      - action space: integers 0..K-1 for symbols in dfa.alphabet
       - observation: 0 at reset; then (last_action + 1) after each step
       - reward: +1 on accepting state, otherwise step_penalty (negative)
       - done: True on accept or after max_steps
     """
-    def __init__(self, fsa, max_steps: Optional[int] = None, seed: Optional[int] = None,
+    def __init__(self, dfa, max_steps: Optional[int] = None, seed: Optional[int] = None,
                  step_penalty: float = -0.01, reward_goal: float = 1.0):
-        self.fsa = fsa
+        self.dfa = dfa
         self.rng = random.Random(seed)
 
-        self.alphabet = list(self.fsa.alphabet)
+        self.alphabet = list(self.dfa.alphabet)
         self.idx_to_action = {i: a for i, a in enumerate(self.alphabet)}
         self.action_space_n = len(self.alphabet)
 
-        self.non_accepting = [s for s in self.fsa.states if s not in self.fsa.accept_states]
+        self.non_accepting = [s for s in self.dfa.states if s not in self.dfa.accept_states]
         if not self.non_accepting:
-            raise ValueError("FSA has no non-accepting states to start from.")
+            raise ValueError("DFA has no non-accepting states to start from.")
 
         self.max_steps = int(max_steps) if max_steps is not None else 50
         self.step_penalty = float(step_penalty)     # negative per step
@@ -51,13 +51,13 @@ class DFAEnv:
         self.steps += 1
 
         # transition
-        next_state = self.fsa.next_state(self.state, a_sym)
+        next_state = self.dfa.next_state(self.state, a_sym)
         if next_state is None:
             next_state = self.state
         self.state = next_state
 
         # reward & done: +1 only if accepting, else negative step penalty
-        if self.fsa.is_accepting(self.state):
+        if self.dfa.is_accepting(self.state):
             reward = self.reward_goal
             self.done = True
         else:

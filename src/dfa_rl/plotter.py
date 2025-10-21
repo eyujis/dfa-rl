@@ -3,7 +3,9 @@ import numpy as np
 
 def plot_training(logs, window: int = 0):
     rewards = np.array(logs["rewards"])
+    print(logs["rewards"])
     lengths = np.array(logs["lengths"])
+    print(logs["lengths"])
     episodes = np.arange(1, len(rewards)+1)
 
     def rolling_mean(x, w):

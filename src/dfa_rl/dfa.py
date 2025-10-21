@@ -4,6 +4,8 @@ import re
 class DFA:
     """
     Minimal DFA parsed from a DOT file.
+    A DFA is a deterministic finite state machine that accepts/rejects
+    a given string of symbols.
     Accepting states are nodes that either:
       - explicitly have shape=doublecircle, OR
       - appear in a subgraph block whose default node attr is shape=doublecircle.
@@ -31,7 +33,7 @@ class DFA:
     def _clean_dot_text(dot_text: str) -> str:
         # Allow inline '#' comments for convenience in notebooks.
         lines = [re.sub(r"#.*$", "", ln) for ln in dot_text.splitlines()]
-        return "\n".join(lines)
+        return "\n".join(lines) # puts a newline between each element in lines
 
     def _parse_dot(self, dot_path: str):
         try:
@@ -46,7 +48,8 @@ class DFA:
         except Exception:
             pass
 
-        with open(dot_path, "r") as f:
+        # open and clean the file dot_path to get the graphs
+        with open(dot_path, "r") as f: # "r" is the default which opens the file dot_path for reading in text mode
             raw = f.read()
         cleaned = self._clean_dot_text(raw)
         graphs = pydot.graph_from_dot_data(cleaned)

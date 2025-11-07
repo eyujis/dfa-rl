@@ -38,16 +38,28 @@ class DFAEnv:
         self.done = False
         return 0  # observation token ("no previous action yet")
 
+    ##
+    # step - takes a single action in the environment
+    #
+    # return values
+    #   obs = observation?  this is action+1, idk why
+    #   reward = big reward for goal, tiny penalty for anything else
+    #   done = reached goal (T/F)
+    #   info = a human-readable string describing what happened
+    #
+    #
     def step(self, action: int) -> Tuple[int, float, bool, Dict[str, Any]]:
+        #sanity checks
         if self.done:
             raise RuntimeError("Episode finished. Call reset().")
         if not (0 <= action < self.action_space_n):
             raise ValueError(f"Action must be in [0,{self.action_space_n-1}]")
 
+        #get the char representing this action
         a_sym = self.idx_to_action[action]
         self.steps += 1
 
-        # transition
+        # transition to the next state based on given action
         next_state = self.dfa.next_state(self.state, a_sym)
         if next_state is None:
             next_state = self.state
@@ -61,6 +73,10 @@ class DFAEnv:
             reward = self.step_penalty
             self.done = (self.steps >= self.max_steps)
 
+        #Nux:  obs = action + 1 is weird.  This gets passed to
+        #dfa_agent.observe() method which records it as a "one hot"
+        #but action+1 would be 001, 010, or 011.  The last of those
+        #is not a one hot.
         obs = action + 1
         info = {"state": self.state, "action_symbol": a_sym, "steps": self.steps}
         return obs, reward, self.done, info
